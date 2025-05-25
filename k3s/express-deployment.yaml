@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: express-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: express
+  template:
+    metadata:
+      labels:
+        app: express
+    spec:
+      containers:
+        - name: express-container
+          image: devpentabd/ec-training:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: mysql-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: express-service
+spec:
+  selector:
+    app: express
+  ports:
+    - port: 80
+      targetPort: 3000
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+type: Opaque
+stringData:
+  MYSQL_HOST: "mysql"
+  MYSQL_PORT: "3306"
+  MYSQL_USER: "root"
+  MYSQL_PASSWORD: "password"
+  MYSQL_DATABASE: "ec-training"
+
